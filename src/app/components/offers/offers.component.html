@@ -1,0 +1,349 @@
+<!-- Hero Section -->
+<section class="offers-hero">
+  <div class="container">
+    <div class="hero-content">
+      <h1>Special Offers & Packages</h1>
+      <p>Get the best value for your medical scanning needs with our exclusive offers</p>
+    </div>
+  </div>
+</section>
+
+<!-- Current Offers -->
+<section class="current-offers">
+  <div class="container">
+    <h2>Current Offers</h2>
+    
+    <!-- Loading State -->
+    <div *ngIf="loading" class="loading-container">
+      <mat-spinner></mat-spinner>
+      <p>Loading offers...</p>
+    </div>
+
+    <!-- Featured Offers -->
+    <div *ngIf="!loading">
+      <h3>Featured Offers</h3>
+      <div class="offers-grid">
+        <div *ngFor="let offer of featuredOffers$ | async" 
+             class="offer-card" 
+             [class.featured]="offer.isFeatured">
+          <div *ngIf="offer.isFeatured" class="offer-badge">Most Popular</div>
+          <div class="offer-header">
+            <h3>{{ offer.title }}</h3>
+            <div class="offer-price">
+              <span class="original-price">${{ offer.originalPrice }}</span>
+              <span class="discounted-price">${{ offer.discountedPrice }}</span>
+              <span class="discount">{{ offer.discountPercentage }}% OFF</span>
+            </div>
+          </div>
+          <div class="offer-content">
+            <p class="offer-description">{{ offer.description }}</p>
+            <ul class="offer-features">
+              <li *ngFor="let feature of offer.features">
+                <mat-icon>check_circle</mat-icon> {{ feature }}
+              </li>
+            </ul>
+            <div class="offer-validity">
+              <mat-icon>schedule</mat-icon>
+              <span>Valid until {{ offer.validityDate | date:'MMM dd, yyyy' }}</span>
+            </div>
+          </div>
+          <button mat-raised-button 
+                  [color]="offer.isFeatured ? 'primary' : 'accent'" 
+                  class="offer-button" 
+                  (click)="openBookingDialog(offer)">
+            <mat-icon>shopping_cart</mat-icon>
+            Book Now
+          </button>
+        </div>
+      </div>
+
+      <!-- Health Offers -->
+      <h3>Health Packages</h3>
+      <div class="offers-grid">
+        <div *ngFor="let offer of healthOffers$ | async" class="offer-card">
+          <div class="offer-header">
+            <h3>{{ offer.title }}</h3>
+            <div class="offer-price">
+              <span class="original-price">${{ offer.originalPrice }}</span>
+              <span class="discounted-price">${{ offer.discountedPrice }}</span>
+              <span class="discount">{{ offer.discountPercentage }}% OFF</span>
+            </div>
+          </div>
+          <div class="offer-content">
+            <p class="offer-description">{{ offer.description }}</p>
+            <ul class="offer-features">
+              <li *ngFor="let feature of offer.features">
+                <mat-icon>check_circle</mat-icon> {{ feature }}
+              </li>
+            </ul>
+            <div class="offer-validity">
+              <mat-icon>schedule</mat-icon>
+              <span>Valid until {{ offer.validityDate | date:'MMM dd, yyyy' }}</span>
+            </div>
+          </div>
+          <button mat-raised-button color="primary" class="offer-button" (click)="openBookingDialog(offer)">
+            <mat-icon>local_hospital</mat-icon>
+            Book Health Package
+          </button>
+        </div>
+      </div>
+
+      <!-- Family Offers -->
+      <h3>Family Packages</h3>
+      <div class="offers-grid">
+        <div *ngFor="let offer of familyOffers$ | async" class="offer-card">
+          <div class="offer-header">
+            <h3>{{ offer.title }}</h3>
+            <div class="offer-price">
+              <span class="original-price">${{ offer.originalPrice }}</span>
+              <span class="discounted-price">${{ offer.discountedPrice }}</span>
+              <span class="discount">{{ offer.discountPercentage }}% OFF</span>
+            </div>
+          </div>
+          <div class="offer-content">
+            <p class="offer-description">{{ offer.description }}</p>
+            <ul class="offer-features">
+              <li *ngFor="let feature of offer.features">
+                <mat-icon>check_circle</mat-icon> {{ feature }}
+              </li>
+            </ul>
+            <div class="offer-validity">
+              <mat-icon>schedule</mat-icon>
+              <span>Valid until {{ offer.validityDate | date:'MMM dd, yyyy' }}</span>
+            </div>
+          </div>
+          <button mat-raised-button color="accent" class="offer-button" (click)="openBookingDialog(offer)">
+            <mat-icon>family_restroom</mat-icon>
+            Book Family Package
+          </button>
+        </div>
+      </div>
+
+      <!-- Senior Offers -->
+      <h3>Senior Citizen Specials</h3>
+      <div class="offers-grid">
+        <div *ngFor="let offer of seniorOffers$ | async" class="offer-card">
+          <div class="offer-header">
+            <h3>{{ offer.title }}</h3>
+            <div class="offer-price">
+              <span class="original-price">${{ offer.originalPrice }}</span>
+              <span class="discounted-price">${{ offer.discountedPrice }}</span>
+              <span class="discount">{{ offer.discountPercentage }}% OFF</span>
+            </div>
+          </div>
+          <div class="offer-content">
+            <p class="offer-description">{{ offer.description }}</p>
+            <ul class="offer-features">
+              <li *ngFor="let feature of offer.features">
+                <mat-icon>check_circle</mat-icon> {{ feature }}
+              </li>
+            </ul>
+            <div class="offer-validity">
+              <mat-icon>schedule</mat-icon>
+              <span>Valid until {{ offer.validityDate | date:'MMM dd, yyyy' }}</span>
+            </div>
+          </div>
+          <button mat-raised-button color="primary" class="offer-button" (click)="openBookingDialog(offer)">
+            <mat-icon>elderly</mat-icon>
+            Book Senior Package
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Seasonal Offers -->
+<section class="seasonal-offers" *ngIf="!loading">
+  <div class="container">
+    <h2>Seasonal Specials</h2>
+    <div class="seasonal-grid">
+      <div *ngFor="let offer of seasonalOffers$ | async" class="seasonal-card">
+        <div class="seasonal-image">
+          <mat-icon>{{ getCategoryIcon(offer.category) }}</mat-icon>
+        </div>
+        <div class="seasonal-content">
+          <h3>{{ offer.title }}</h3>
+          <p>{{ offer.description }}</p>
+          <div class="seasonal-price">{{ offer.discountPercentage }}% OFF</div>
+          <button mat-raised-button color="primary" (click)="openBookingDialog(offer)">
+            Book Now
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Terms & Conditions -->
+<section class="terms-section">
+  <div class="container">
+    <h2>Terms & Conditions</h2>
+    <div class="terms-content">
+      <div class="terms-item">
+        <mat-icon>info</mat-icon>
+        <div>
+          <h4>Validity</h4>
+          <p>All offers are valid for the specified period and cannot be combined with other discounts.</p>
+        </div>
+      </div>
+      <div class="terms-item">
+        <mat-icon>schedule</mat-icon>
+        <div>
+          <h4>Appointment</h4>
+          <p>Advance booking required. Same-day appointments subject to availability.</p>
+        </div>
+      </div>
+      <div class="terms-item">
+        <mat-icon>payment</mat-icon>
+        <div>
+          <h4>Payment</h4>
+          <p>Full payment required at the time of booking. Refunds as per policy.</p>
+        </div>
+      </div>
+      <div class="terms-item">
+        <mat-icon>support</mat-icon>
+        <div>
+          <h4>Support</h4>
+          <p>24/7 customer support available for all package bookings.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA Section -->
+<section class="cta-section">
+  <div class="container">
+    <div class="cta-content">
+      <h2>Ready to Book Your Health Package?</h2>
+      <p>Contact us today to schedule your appointment and take advantage of these exclusive offers</p>
+      <div class="cta-buttons">
+        <button mat-raised-button color="primary" size="large">
+          <mat-icon>phone</mat-icon>
+          Call Now: +1 (555) 123-4567
+        </button>
+        <button mat-stroked-button color="primary" size="large">
+          <mat-icon>email</mat-icon>
+          Send Enquiry
+        </button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Booking Dialog -->
+<div class="booking-dialog" *ngIf="showBookingDialog" (click)="closeBookingDialog($event)">
+  <div class="dialog-content" (click)="$event.stopPropagation()">
+    <div class="dialog-header">
+      <h2>Book {{ selectedOffer?.title }}</h2>
+      <button mat-icon-button (click)="closeBookingDialog()">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+    
+    <form [formGroup]="bookingForm" (ngSubmit)="onSubmitBooking()" class="booking-form">
+      <div class="form-row">
+        <mat-form-field appearance="outline">
+          <mat-label>Full Name</mat-label>
+          <input matInput formControlName="fullName" placeholder="Enter your full name">
+          <mat-error *ngIf="bookingForm.get('fullName')?.hasError('required')">
+            Full name is required
+          </mat-error>
+        </mat-form-field>
+        
+        <mat-form-field appearance="outline">
+          <mat-label>Email</mat-label>
+          <input matInput formControlName="email" type="email" placeholder="Enter your email">
+          <mat-error *ngIf="bookingForm.get('email')?.hasError('required')">
+            Email is required
+          </mat-error>
+          <mat-error *ngIf="bookingForm.get('email')?.hasError('email')">
+            Please enter a valid email
+          </mat-error>
+        </mat-form-field>
+      </div>
+      
+      <div class="form-row">
+        <mat-form-field appearance="outline">
+          <mat-label>Phone Number</mat-label>
+          <input matInput formControlName="phone" placeholder="Enter your phone number">
+          <mat-error *ngIf="bookingForm.get('phone')?.hasError('required')">
+            Phone number is required
+          </mat-error>
+        </mat-form-field>
+        
+        <mat-form-field appearance="outline">
+          <mat-label>Preferred Date</mat-label>
+          <input matInput [matDatepicker]="picker" formControlName="preferredDate" placeholder="Select date">
+          <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+          <mat-datepicker #picker></mat-datepicker>
+          <mat-error *ngIf="bookingForm.get('preferredDate')?.hasError('required')">
+            Preferred date is required
+          </mat-error>
+        </mat-form-field>
+      </div>
+      
+      <div class="form-row">
+        <mat-form-field appearance="outline">
+          <mat-label>Age</mat-label>
+          <input matInput formControlName="age" type="number" placeholder="Enter your age">
+          <mat-error *ngIf="bookingForm.get('age')?.hasError('required')">
+            Age is required
+          </mat-error>
+          <mat-error *ngIf="bookingForm.get('age')?.hasError('min')">
+            Age must be at least 1
+          </mat-error>
+        </mat-form-field>
+        
+        <mat-form-field appearance="outline">
+          <mat-label>Gender</mat-label>
+          <mat-select formControlName="gender">
+            <mat-option value="male">Male</mat-option>
+            <mat-option value="female">Female</mat-option>
+            <mat-option value="other">Other</mat-option>
+          </mat-select>
+          <mat-error *ngIf="bookingForm.get('gender')?.hasError('required')">
+            Gender is required
+          </mat-error>
+        </mat-form-field>
+      </div>
+      
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Special Requirements</mat-label>
+        <textarea matInput formControlName="specialRequirements" 
+                 placeholder="Any special requirements or medical conditions we should know about?" 
+                 rows="3"></textarea>
+      </mat-form-field>
+      
+          <div class="package-summary">
+            <h3>Package Summary</h3>
+            <div class="summary-item">
+              <span>Package:</span>
+              <span>{{ selectedOffer?.title }}</span>
+            </div>
+            <div class="summary-item">
+              <span>Original Price:</span>
+              <span class="original-price">${{ selectedOffer?.originalPrice }}</span>
+            </div>
+            <div class="summary-item">
+              <span>Discounted Price:</span>
+              <span class="price">${{ selectedOffer?.discountedPrice }}</span>
+            </div>
+            <div class="summary-item">
+              <span>Savings:</span>
+              <span class="savings">${{ (selectedOffer?.originalPrice || 0) - (selectedOffer?.discountedPrice || 0) }}</span>
+            </div>
+          </div>
+      
+      <div class="form-actions">
+        <button mat-button type="button" (click)="closeBookingDialog()">Cancel</button>
+        <button mat-raised-button color="primary" type="submit" 
+                [disabled]="bookingForm.invalid || isSubmitting">
+          <mat-icon *ngIf="isSubmitting">hourglass_empty</mat-icon>
+          {{ isSubmitting ? 'Booking...' : 'Confirm Booking' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
