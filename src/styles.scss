@@ -1,0 +1,357 @@
+/* You can add global styles to this file, and also import other style files */
+@import '@angular/material/prebuilt-themes/indigo-pink.css';
+
+html, body { 
+  height: 100%; 
+  margin: 0;
+  padding: 0;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+  overflow-x: hidden;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+/* Responsive breakpoints */
+$mobile: 768px;
+$tablet: 1024px;
+$desktop: 1200px;
+
+/* Mobile-first responsive utilities */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+  
+  @media (max-width: $mobile) {
+    padding: 0 15px;
+  }
+}
+
+/* Responsive grid system */
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  margin: 0 -15px;
+}
+
+.col {
+  flex: 1;
+  padding: 0 15px;
+  
+  @media (max-width: $mobile) {
+    flex: 100%;
+    margin-bottom: 20px;
+  }
+}
+
+.col-2 {
+  flex: 0 0 50%;
+  padding: 0 15px;
+  
+  @media (max-width: $mobile) {
+    flex: 100%;
+  }
+}
+
+.col-3 {
+  flex: 0 0 33.333%;
+  padding: 0 15px;
+  
+  @media (max-width: $tablet) {
+    flex: 0 0 50%;
+  }
+  
+  @media (max-width: $mobile) {
+    flex: 100%;
+  }
+}
+
+.col-4 {
+  flex: 0 0 25%;
+  padding: 0 15px;
+  
+  @media (max-width: $tablet) {
+    flex: 0 0 50%;
+  }
+  
+  @media (max-width: $mobile) {
+    flex: 100%;
+  }
+}
+
+/* Responsive text */
+.text-responsive {
+  font-size: 1rem;
+  
+  @media (max-width: $mobile) {
+    font-size: 0.9rem;
+  }
+}
+
+.heading-responsive {
+  font-size: 2.5rem;
+  
+  @media (max-width: $tablet) {
+    font-size: 2rem;
+  }
+  
+  @media (max-width: $mobile) {
+    font-size: 1.5rem;
+  }
+}
+
+/* Responsive spacing */
+.p-responsive {
+  padding: 40px 0;
+  
+  @media (max-width: $mobile) {
+    padding: 20px 0;
+  }
+}
+
+.m-responsive {
+  margin: 40px 0;
+  
+  @media (max-width: $mobile) {
+    margin: 20px 0;
+  }
+}
+
+/* Responsive buttons */
+.btn-responsive {
+  padding: 15px 30px;
+  font-size: 1rem;
+  
+  @media (max-width: $mobile) {
+    padding: 12px 24px;
+    font-size: 0.9rem;
+  }
+}
+
+/* Responsive cards */
+.card-responsive {
+  padding: 30px;
+  
+  @media (max-width: $mobile) {
+    padding: 20px;
+  }
+}
+
+/* Responsive images */
+.img-responsive {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Responsive tables */
+.table-responsive {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Responsive navigation */
+.nav-responsive {
+  @media (max-width: $mobile) {
+    flex-direction: column;
+    text-align: center;
+  }
+}
+
+/* Responsive forms */
+.form-responsive {
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    
+    @media (max-width: $mobile) {
+      grid-template-columns: 1fr;
+      gap: 15px;
+    }
+  }
+}
+
+/* Responsive utilities */
+.hide-mobile {
+  @media (max-width: $mobile) {
+    display: none !important;
+  }
+}
+
+.hide-tablet {
+  @media (max-width: $tablet) {
+    display: none !important;
+  }
+}
+
+.show-mobile {
+  display: none !important;
+  
+  @media (max-width: $mobile) {
+    display: block !important;
+  }
+}
+
+.show-tablet {
+  display: none !important;
+  
+  @media (max-width: $tablet) {
+    display: block !important;
+  }
+}
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Focus styles for accessibility */
+*:focus {
+  outline: 2px solid #3498db;
+  outline-offset: 2px;
+}
+
+/* Loading states */
+.loading {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+/* Success and error states */
+.success {
+  color: #27ae60;
+}
+
+.error {
+  color: #e74c3c;
+}
+
+.warning {
+  color: #f39c12;
+}
+
+/* Animation utilities */
+.fade-in {
+  animation: fadeIn 0.5s ease-in;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.slide-up {
+  animation: slideUp 0.5s ease-out;
+}
+
+@keyframes slideUp {
+  from { 
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to { 
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.hero-section {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 80px 0;
+  text-align: center;
+}
+
+.doctor-card {
+  transition: transform 0.3s ease;
+  cursor: pointer;
+}
+
+.doctor-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+}
+
+.contact-section {
+  background-color: #f8f9fa;
+  padding: 60px 0;
+}
+
+.map-container {
+  height: 400px;
+  width: 100%;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.admin-panel {
+  background-color: #f5f5f5;
+  min-height: 100vh;
+}
+
+.sidebar {
+  background-color: #2c3e50;
+  color: white;
+  min-height: 100vh;
+}
+
+.sidebar .nav-link {
+  color: #ecf0f1;
+  padding: 15px 20px;
+  border-bottom: 1px solid #34495e;
+  transition: background-color 0.3s;
+}
+
+.sidebar .nav-link:hover {
+  background-color: #34495e;
+  color: white;
+}
+
+.sidebar .nav-link.active {
+  background-color: #3498db;
+}
+
+.content-area {
+  padding: 30px;
+}
+
+.form-container {
+  background: white;
+  padding: 30px;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.btn-primary {
+  background-color: #3498db;
+  border-color: #3498db;
+}
+
+.btn-primary:hover {
+  background-color: #2980b9;
+  border-color: #2980b9;
+}
+
+.table-responsive {
+  background: white;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.alert {
+  border-radius: 8px;
+  border: none;
+}
+
+.alert-success {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.alert-danger {
+  background-color: #f8d7da;
+  color: #721c24;
+}
