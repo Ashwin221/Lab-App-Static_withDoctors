@@ -439,7 +439,7 @@ import { Doctor } from '../../models/doctor.model';
     }
     
     .rating-number {
-      font-size: 3rem;
+      /*font-size: 3rem;*/
       font-weight: bold;
       color: #2c3e50;
       display: block;

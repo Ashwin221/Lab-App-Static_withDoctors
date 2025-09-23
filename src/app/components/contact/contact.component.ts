@@ -190,7 +190,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
     }
     
     .contact-hero h1 {
-      font-size: 3rem;
+      /*font-size: 3rem;*/
       margin-bottom: 20px;
       font-weight: 300;
     }

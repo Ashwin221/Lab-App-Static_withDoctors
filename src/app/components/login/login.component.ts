@@ -25,7 +25,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
               <input matInput 
                      type="email" 
                      formControlName="email" 
-                     placeholder="admin@labscan.com"
+                     placeholder="admin@user.in"
                      autocomplete="email">
               <mat-icon matSuffix>email</mat-icon>
               <mat-error *ngIf="loginForm.get('email')?.hasError('required')">
@@ -152,7 +152,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
     }
     
     .logo mat-icon {
-      font-size: 3rem;
+      /*font-size: 3rem;*/
       color: #3498db;
     }
     

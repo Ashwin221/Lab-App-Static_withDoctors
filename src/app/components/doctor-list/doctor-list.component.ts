@@ -90,7 +90,7 @@ import { FirestoreService } from '../../services/firestore.service';
                 <span>{{ doctor.availableDays.join(', ') }}</span>
               </div>
               
-              <div class="card-actions">
+              <div class="card-actions" style="display:none">
                 <button mat-raised-button color="primary" (click)="viewDoctor(doctor.id); $event.stopPropagation()">
                   <mat-icon>visibility</mat-icon>
                   View Profile
@@ -141,7 +141,7 @@ import { FirestoreService } from '../../services/firestore.service';
     }
     
     .page-header h1 {
-      font-size: 3rem;
+       /*font-size: 3rem;*/
       margin-bottom: 20px;
       font-weight: 300;
     }

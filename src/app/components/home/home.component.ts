@@ -257,7 +257,7 @@ import { Feature, HeroContent, Testimonial, Statistic } from '../../models/featu
     }
     
     .feature-icon {
-      font-size: 3rem;
+      /*font-size: 3rem;*/
       color: #3498db;
       margin-bottom: 20px;
     }
@@ -379,7 +379,7 @@ import { Feature, HeroContent, Testimonial, Statistic } from '../../models/featu
     }
     
     .service-icon {
-      font-size: 3rem;
+      /*font-size: 3rem;*/
       color: #3498db;
       margin-bottom: 20px;
     }
@@ -442,7 +442,7 @@ import { Feature, HeroContent, Testimonial, Statistic } from '../../models/featu
     }
     
     .statistic-icon {
-      font-size: 3rem;
+      /*font-size: 3rem;*/
       color: #ecf0f1;
       margin-bottom: 15px;
     }
