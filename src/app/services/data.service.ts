@@ -1,4 +1,8 @@
 import { Injectable } from '@angular/core';
+import { AngularFirestore } from '@angular/fire/compat/firestore';
+import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
+import firebase from 'firebase/compat/app';
 import { Doctor } from '../models/doctor.model';
 import { Scan, ScanType } from '../models/scan.model';
 import { Contact, Enquiry } from '../models/contact.model';
@@ -14,608 +18,638 @@ import {
   ContactInfo, 
   FooterContent 
 } from '../models/content.model';
+import { Offer, OfferBooking } from '../models/offer.model';
 
 @Injectable({
   providedIn: 'root'
 })
 export class DataService {
-  private doctors: Doctor[] = [];
-  private scans: Scan[] = [];
-  private contacts: Contact[] = [];
-  private enquiries: Enquiry[] = [];
-  private scanTypes: ScanType[] = [];
-  private features: Feature[] = [];
-  private heroContent: HeroContent[] = [];
-  private testimonials: Testimonial[] = [];
-  private statistics: Statistic[] = [];
-  private navigationItems: NavigationItem[] = [];
-  private siteSettings: SiteSettings[] = [];
-  private pageContent: PageContent[] = [];
-  private faqs: FAQ[] = [];
-  private newsItems: NewsItem[] = [];
-  private galleryItems: GalleryItem[] = [];
-  private pricingPlans: PricingPlan[] = [];
-  private contactInfo: ContactInfo[] = [];
-  private footerContent: FooterContent[] = [];
-
-  constructor() {
-    this.loadDataFromStorage();
+  constructor(private afs: AngularFirestore) {
     this.initializeDefaultData();
   }
 
-  // Doctor methods
-  getDoctors(): Doctor[] {
-    return this.doctors.filter(doctor => doctor.isActive);
+  // Doctors
+  getDoctors$(): Observable<Doctor[]> {
+    return this.afs
+      .collection<Doctor>('doctors', ref => ref.where('isActive', '==', true))
+      .valueChanges({ idField: 'id' });
   }
 
-  getAllDoctors(): Doctor[] {
-    return this.doctors;
+  getAllDoctors$(): Observable<Doctor[]> {
+    return this.afs.collection<Doctor>('doctors').valueChanges({ idField: 'id' });
   }
 
-  getDoctorById(id: string): Doctor | undefined {
-    console.log('Searching for doctor with ID:', id);
-    console.log('Available doctors:', this.doctors);
-    const found = this.doctors.find(doctor => doctor.id === id);
-    console.log('Found doctor:', found);
-    return found;
+  getDoctorById$(id: string): Observable<Doctor | undefined> {
+    return this.afs
+      .collection<Doctor>('doctors')
+      .doc(id)
+      .valueChanges()
+      .pipe(map(doctor => doctor ? { ...doctor, id } : undefined));
   }
 
-  addDoctor(doctor: Doctor): void {
-    doctor.id = this.generateId();
-    doctor.createdAt = new Date();
-    doctor.updatedAt = new Date();
-    this.doctors.push(doctor);
-    this.saveDataToStorage();
+  addDoctor(doctor: Doctor): Promise<void> {
+    const id = this.afs.createId();
+    const now = new Date();
+    return this.afs.collection('doctors').doc(id).set({ 
+      ...doctor, 
+      id, 
+      createdAt: now, 
+      updatedAt: now 
+    });
   }
 
-  updateDoctor(doctor: Doctor): void {
-    const index = this.doctors.findIndex(d => d.id === doctor.id);
-    if (index !== -1) {
-      doctor.updatedAt = new Date();
-      this.doctors[index] = doctor;
-      this.saveDataToStorage();
-    }
+  updateDoctor(doctor: Doctor): Promise<void> {
+    return this.afs.collection('doctors').doc(doctor.id).update({ 
+      ...doctor, 
+      updatedAt: new Date() 
+    });
   }
 
-  deleteDoctor(id: string): void {
-    const index = this.doctors.findIndex(d => d.id === id);
-    if (index !== -1) {
-      this.doctors.splice(index, 1);
-      this.saveDataToStorage();
-    }
+  deleteDoctor(id: string): Promise<void> {
+    return this.afs.collection('doctors').doc(id).delete();
   }
 
-  // Scan methods
-  getScans(): Scan[] {
-    return this.scans;
+  // Scans
+  getScans$(): Observable<Scan[]> {
+    return this.afs.collection<Scan>('scans').valueChanges({ idField: 'id' });
   }
 
-  addScan(scan: Scan): void {
-    scan.id = this.generateId();
-    scan.createdAt = new Date();
-    scan.updatedAt = new Date();
-    this.scans.push(scan);
-    this.saveDataToStorage();
+  addScan(scan: Scan): Promise<void> {
+    const id = this.afs.createId();
+    const now = new Date();
+    return this.afs.collection('scans').doc(id).set({ 
+      ...scan, 
+      id, 
+      createdAt: now, 
+      updatedAt: now 
+    });
   }
 
-  updateScan(scan: Scan): void {
-    const index = this.scans.findIndex(s => s.id === scan.id);
-    if (index !== -1) {
-      scan.updatedAt = new Date();
-      this.scans[index] = scan;
-      this.saveDataToStorage();
-    }
+  updateScan(scan: Scan): Promise<void> {
+    return this.afs.collection('scans').doc(scan.id).update({ 
+      ...scan, 
+      updatedAt: new Date() 
+    });
   }
 
-  // Contact methods
-  getContacts(): Contact[] {
-    return this.contacts;
+  // Contacts
+  getContacts$(): Observable<Contact[]> {
+    return this.afs.collection<Contact>('contacts').valueChanges({ idField: 'id' });
   }
 
-  addContact(contact: Contact): void {
-    contact.id = this.generateId();
-    contact.createdAt = new Date();
-    this.contacts.push(contact);
-    this.saveDataToStorage();
+  addContact(contact: Contact): Promise<void> {
+    const id = this.afs.createId();
+    const now = new Date();
+    return this.afs.collection('contacts').doc(id).set({ 
+      ...contact, 
+      id, 
+      createdAt: now 
+    });
   }
 
-  // Enquiry methods
-  getEnquiries(): Enquiry[] {
-    return this.enquiries;
+  // Enquiries
+  getEnquiries$(): Observable<Enquiry[]> {
+    return this.afs.collection<Enquiry>('enquiries').valueChanges({ idField: 'id' });
   }
 
-  getEnquiryCount(): number {
-    return this.enquiries.length;
+  getEnquiryCount$(): Observable<number> {
+    return this.afs
+      .collection<Enquiry>('enquiries')
+      .valueChanges()
+      .pipe(map(enquiries => enquiries.length));
   }
 
-  clearAllEnquiries(): void {
-    this.enquiries = [];
-    this.saveDataToStorage();
-    console.log('All enquiries cleared');
+  clearAllEnquiries(): Promise<void> {
+    const batch = this.afs.firestore.batch();
+    return this.afs.collection('enquiries').get().toPromise()
+      .then(snapshot => {
+        if (snapshot) {
+          snapshot.forEach(doc => batch.delete(doc.ref));
+          return batch.commit();
+        }
+        return Promise.resolve();
+      });
   }
 
-  createTestEnquiry(): void {
-    const testEnquiry: Enquiry = {
-      id: '',
-      name: 'Test User',
-      email: 'test@example.com',
-      phone: '+1-555-0123',
-      enquiryType: 'general',
-      message: 'This is a test enquiry to verify the system is working correctly.',
-      doctorId: this.doctors[0]?.id,
-      doctorName: this.doctors[0] ? `Dr. ${this.doctors[0].name}` : undefined,
-      status: 'new',
-      createdAt: new Date()
-    };
-    this.addEnquiry(testEnquiry);
-    console.log('Test enquiry created');
+  createTestEnquiry(): Promise<void> {
+    return this.getAllDoctors$().pipe(map(doctors => doctors[0])).toPromise()
+      .then(doctor => {
+        const testEnquiry: Enquiry = {
+          id: this.afs.createId(),
+          name: 'Test User',
+          email: 'test@example.com',
+          phone: '+1-555-0123',
+          enquiryType: 'general',
+          message: 'This is a test enquiry to verify the system is working correctly.',
+          doctorId: doctor?.id,
+          doctorName: doctor ? `Dr. ${doctor.name}` : undefined,
+          status: 'new',
+          createdAt: new Date()
+        };
+        return this.addEnquiry(testEnquiry);
+      });
   }
 
-  addEnquiry(enquiry: Enquiry): void {
-    enquiry.id = this.generateId();
-    enquiry.createdAt = new Date();
-    this.enquiries.push(enquiry);
-    this.saveDataToStorage();
-    console.log('Enquiry added successfully. Total enquiries:', this.enquiries.length);
-    console.log('Latest enquiry:', enquiry);
+  addEnquiry(enquiry: Enquiry): Promise<void> {
+    const id = this.afs.createId();
+    const now = new Date();
+    return this.afs.collection('enquiries').doc(id).set({ 
+      ...enquiry, 
+      id, 
+      createdAt: now 
+    });
   }
 
-  updateEnquiry(enquiry: Enquiry): void {
-    const index = this.enquiries.findIndex(e => e.id === enquiry.id);
-    if (index !== -1) {
-      this.enquiries[index] = enquiry;
-      this.saveDataToStorage();
-      console.log('Enquiry updated successfully:', enquiry);
-    }
+  updateEnquiry(enquiry: Enquiry): Promise<void> {
+    return this.afs.collection('enquiries').doc(enquiry.id).update(enquiry);
   }
 
   // Scan Types
-  getScanTypes(): ScanType[] {
-    return this.scanTypes.filter(type => type.isActive);
+  getScanTypes$(): Observable<ScanType[]> {
+    return this.afs
+      .collection<ScanType>('scanTypes', ref => ref.where('isActive', '==', true))
+      .valueChanges({ idField: 'id' });
   }
 
   // Features
-  getFeatures(): Feature[] {
-    return this.features.filter(feature => feature.isActive).sort((a, b) => a.order - b.order);
+  getFeatures$(): Observable<Feature[]> {
+    return this.afs
+      .collection<Feature>('features', ref => 
+        ref.where('isActive', '==', true).orderBy('order')
+      )
+      .valueChanges({ idField: 'id' });
   }
 
-  addFeature(feature: Feature): void {
-    feature.id = this.generateId();
-    feature.createdAt = new Date();
-    feature.updatedAt = new Date();
-    this.features.push(feature);
-    this.saveDataToStorage();
+  addFeature(feature: Feature): Promise<void> {
+    const id = this.afs.createId();
+    const now = new Date();
+    return this.afs.collection('features').doc(id).set({ 
+      ...feature, 
+      id, 
+      createdAt: now, 
+      updatedAt: now 
+    });
   }
 
-  updateFeature(feature: Feature): void {
-    const index = this.features.findIndex(f => f.id === feature.id);
-    if (index !== -1) {
-      feature.updatedAt = new Date();
-      this.features[index] = feature;
-      this.saveDataToStorage();
-    }
+  updateFeature(feature: Feature): Promise<void> {
+    return this.afs.collection('features').doc(feature.id).update({ 
+      ...feature, 
+      updatedAt: new Date() 
+    });
   }
 
   // Hero Content
-  getHeroContent(): HeroContent | null {
-    const activeHero = this.heroContent.find(hero => hero.isActive);
-    return activeHero || null;
+  getHeroContent$(): Observable<HeroContent | null> {
+    return this.afs
+      .collection<HeroContent>('heroContent', ref => ref.where('isActive', '==', true))
+      .valueChanges({ idField: 'id' })
+      .pipe(map(heroes => heroes[0] || null));
   }
 
-  addHeroContent(hero: HeroContent): void {
-    hero.id = this.generateId();
-    hero.createdAt = new Date();
-    hero.updatedAt = new Date();
-    this.heroContent.push(hero);
-    this.saveDataToStorage();
+  addHeroContent(hero: HeroContent): Promise<void> {
+    const id = this.afs.createId();
+    const now = new Date();
+    return this.afs.collection('heroContent').doc(id).set({ 
+      ...hero, 
+      id, 
+      createdAt: now, 
+      updatedAt: now 
+    });
   }
 
-  updateHeroContent(hero: HeroContent): void {
-    const index = this.heroContent.findIndex(h => h.id === hero.id);
-    if (index !== -1) {
-      hero.updatedAt = new Date();
-      this.heroContent[index] = hero;
-      this.saveDataToStorage();
-    }
+  updateHeroContent(hero: HeroContent): Promise<void> {
+    return this.afs.collection('heroContent').doc(hero.id).update({ 
+      ...hero, 
+      updatedAt: new Date() 
+    });
   }
 
   // Testimonials
-  getTestimonials(): Testimonial[] {
-    return this.testimonials.filter(testimonial => testimonial.isActive).sort((a, b) => a.order - b.order);
+  getTestimonials$(): Observable<Testimonial[]> {
+    return this.afs
+      .collection<Testimonial>('testimonials', ref => 
+        ref.where('isActive', '==', true).orderBy('order')
+      )
+      .valueChanges({ idField: 'id' });
   }
 
-  addTestimonial(testimonial: Testimonial): void {
-    testimonial.id = this.generateId();
-    testimonial.createdAt = new Date();
-    testimonial.updatedAt = new Date();
-    this.testimonials.push(testimonial);
-    this.saveDataToStorage();
+  addTestimonial(testimonial: Testimonial): Promise<void> {
+    const id = this.afs.createId();
+    const now = new Date();
+    return this.afs.collection('testimonials').doc(id).set({ 
+      ...testimonial, 
+      id, 
+      createdAt: now, 
+      updatedAt: now 
+    });
   }
 
-  updateTestimonial(testimonial: Testimonial): void {
-    const index = this.testimonials.findIndex(t => t.id === testimonial.id);
-    if (index !== -1) {
-      testimonial.updatedAt = new Date();
-      this.testimonials[index] = testimonial;
-      this.saveDataToStorage();
-    }
+  updateTestimonial(testimonial: Testimonial): Promise<void> {
+    return this.afs.collection('testimonials').doc(testimonial.id).update({ 
+      ...testimonial, 
+      updatedAt: new Date() 
+    });
   }
 
   // Statistics
-  getStatistics(): Statistic[] {
-    return this.statistics.filter(stat => stat.isActive).sort((a, b) => a.order - b.order);
+  getStatistics$(): Observable<Statistic[]> {
+    return this.afs
+      .collection<Statistic>('statistics', ref => 
+        ref.where('isActive', '==', true).orderBy('order')
+      )
+      .valueChanges({ idField: 'id' });
   }
 
-  addStatistic(statistic: Statistic): void {
-    statistic.id = this.generateId();
-    statistic.createdAt = new Date();
-    statistic.updatedAt = new Date();
-    this.statistics.push(statistic);
-    this.saveDataToStorage();
+  addStatistic(statistic: Statistic): Promise<void> {
+    const id = this.afs.createId();
+    const now = new Date();
+    return this.afs.collection('statistics').doc(id).set({ 
+      ...statistic, 
+      id, 
+      createdAt: now, 
+      updatedAt: now 
+    });
   }
 
-  updateStatistic(statistic: Statistic): void {
-    const index = this.statistics.findIndex(s => s.id === statistic.id);
-    if (index !== -1) {
-      statistic.updatedAt = new Date();
-      this.statistics[index] = statistic;
-      this.saveDataToStorage();
-    }
+  updateStatistic(statistic: Statistic): Promise<void> {
+    return this.afs.collection('statistics').doc(statistic.id).update({ 
+      ...statistic, 
+      updatedAt: new Date() 
+    });
   }
 
   // Navigation Items
-  getNavigationItems(): NavigationItem[] {
-    return this.navigationItems.filter(item => item.isActive && item.isVisible).sort((a, b) => a.order - b.order);
+  getNavigationItems$(): Observable<NavigationItem[]> {
+    return this.afs
+      .collection<NavigationItem>('navigationItems', ref => 
+        ref.where('isActive', '==', true)
+           .where('isVisible', '==', true)
+           .orderBy('order')
+      )
+      .valueChanges({ idField: 'id' });
   }
 
-  addNavigationItem(item: NavigationItem): void {
-    item.id = this.generateId();
-    item.createdAt = new Date();
-    item.updatedAt = new Date();
-    this.navigationItems.push(item);
-    this.saveDataToStorage();
+  addNavigationItem(item: NavigationItem): Promise<void> {
+    const id = this.afs.createId();
+    const now = new Date();
+    return this.afs.collection('navigationItems').doc(id).set({ 
+      ...item, 
+      id, 
+      createdAt: now, 
+      updatedAt: now 
+    });
   }
 
-  updateNavigationItem(item: NavigationItem): void {
-    const index = this.navigationItems.findIndex(n => n.id === item.id);
-    if (index !== -1) {
-      item.updatedAt = new Date();
-      this.navigationItems[index] = item;
-      this.saveDataToStorage();
-    }
+  updateNavigationItem(item: NavigationItem): Promise<void> {
+    return this.afs.collection('navigationItems').doc(item.id).update({ 
+      ...item, 
+      updatedAt: new Date() 
+    });
   }
 
   // Site Settings
-  getSiteSettings(): SiteSettings | null {
-    const activeSettings = this.siteSettings.find(settings => settings.isActive);
-    return activeSettings || null;
+  getSiteSettings$(): Observable<SiteSettings | null> {
+    return this.afs
+      .collection<SiteSettings>('siteSettings', ref => ref.where('isActive', '==', true))
+      .valueChanges({ idField: 'id' })
+      .pipe(map(settings => settings[0] || null));
   }
 
-  addSiteSettings(settings: SiteSettings): void {
-    settings.id = this.generateId();
-    settings.createdAt = new Date();
-    settings.updatedAt = new Date();
-    this.siteSettings.push(settings);
-    this.saveDataToStorage();
+  addSiteSettings(settings: SiteSettings): Promise<void> {
+    const id = this.afs.createId();
+    const now = new Date();
+    return this.afs.collection('siteSettings').doc(id).set({ 
+      ...settings, 
+      id, 
+      createdAt: now, 
+      updatedAt: now 
+    });
   }
 
-  updateSiteSettings(settings: SiteSettings): void {
-    const index = this.siteSettings.findIndex(s => s.id === settings.id);
-    if (index !== -1) {
-      settings.updatedAt = new Date();
-      this.siteSettings[index] = settings;
-      this.saveDataToStorage();
-    }
+  updateSiteSettings(settings: SiteSettings): Promise<void> {
+    return this.afs.collection('siteSettings').doc(settings.id).update({ 
+      ...settings, 
+      updatedAt: new Date() 
+    });
   }
 
   // Page Content
-  getPageContent(pageName: string): PageContent | null {
-    const page = this.pageContent.find(p => p.pageName === pageName && p.isActive);
-    return page || null;
+  getPageContent$(pageName: string): Observable<PageContent | null> {
+    return this.afs
+      .collection<PageContent>('pageContent', ref => 
+        ref.where('pageName', '==', pageName).where('isActive', '==', true)
+      )
+      .valueChanges({ idField: 'id' })
+      .pipe(map(pages => pages[0] || null));
   }
 
-  addPageContent(content: PageContent): void {
-    content.id = this.generateId();
-    content.createdAt = new Date();
-    content.updatedAt = new Date();
-    this.pageContent.push(content);
-    this.saveDataToStorage();
+  addPageContent(content: PageContent): Promise<void> {
+    const id = this.afs.createId();
+    const now = new Date();
+    return this.afs.collection('pageContent').doc(id).set({ 
+      ...content, 
+      id, 
+      createdAt: now, 
+      updatedAt: now 
+    });
   }
 
-  updatePageContent(content: PageContent): void {
-    const index = this.pageContent.findIndex(p => p.id === content.id);
-    if (index !== -1) {
-      content.updatedAt = new Date();
-      this.pageContent[index] = content;
-      this.saveDataToStorage();
-    }
+  updatePageContent(content: PageContent): Promise<void> {
+    return this.afs.collection('pageContent').doc(content.id).update({ 
+      ...content, 
+      updatedAt: new Date() 
+    });
   }
 
   // FAQs
-  getFAQs(): FAQ[] {
-    return this.faqs.filter(faq => faq.isActive).sort((a, b) => a.order - b.order);
+  getFAQs$(): Observable<FAQ[]> {
+    return this.afs
+      .collection<FAQ>('faqs', ref => 
+        ref.where('isActive', '==', true).orderBy('order')
+      )
+      .valueChanges({ idField: 'id' });
   }
 
-  addFAQ(faq: FAQ): void {
-    faq.id = this.generateId();
-    faq.createdAt = new Date();
-    faq.updatedAt = new Date();
-    this.faqs.push(faq);
-    this.saveDataToStorage();
+  addFAQ(faq: FAQ): Promise<void> {
+    const id = this.afs.createId();
+    const now = new Date();
+    return this.afs.collection('faqs').doc(id).set({ 
+      ...faq, 
+      id, 
+      createdAt: now, 
+      updatedAt: now 
+    });
   }
 
-  updateFAQ(faq: FAQ): void {
-    const index = this.faqs.findIndex(f => f.id === faq.id);
-    if (index !== -1) {
-      faq.updatedAt = new Date();
-      this.faqs[index] = faq;
-      this.saveDataToStorage();
-    }
+  updateFAQ(faq: FAQ): Promise<void> {
+    return this.afs.collection('faqs').doc(faq.id).update({ 
+      ...faq, 
+      updatedAt: new Date() 
+    });
   }
 
   // News Items
-  getNewsItems(): NewsItem[] {
-    return this.newsItems.filter(news => news.isPublished).sort((a, b) => b.publishDate.getTime() - a.publishDate.getTime());
+  getNewsItems$(): Observable<NewsItem[]> {
+    return this.afs
+      .collection<NewsItem>('newsItems', ref => 
+        ref.where('isPublished', '==', true).orderBy('publishDate', 'desc')
+      )
+      .valueChanges({ idField: 'id' });
   }
 
-  getFeaturedNews(): NewsItem[] {
-    return this.newsItems.filter(news => news.isPublished && news.isFeatured).sort((a, b) => b.publishDate.getTime() - a.publishDate.getTime());
+  getFeaturedNews$(): Observable<NewsItem[]> {
+    return this.afs
+      .collection<NewsItem>('newsItems', ref => 
+        ref.where('isPublished', '==', true)
+           .where('isFeatured', '==', true)
+           .orderBy('publishDate', 'desc')
+      )
+      .valueChanges({ idField: 'id' });
   }
 
-  addNewsItem(news: NewsItem): void {
-    news.id = this.generateId();
-    news.createdAt = new Date();
-    news.updatedAt = new Date();
-    this.newsItems.push(news);
-    this.saveDataToStorage();
+  addNewsItem(news: NewsItem): Promise<void> {
+    const id = this.afs.createId();
+    const now = new Date();
+    return this.afs.collection('newsItems').doc(id).set({ 
+      ...news, 
+      id, 
+      createdAt: now, 
+      updatedAt: now 
+    });
   }
 
-  updateNewsItem(news: NewsItem): void {
-    const index = this.newsItems.findIndex(n => n.id === news.id);
-    if (index !== -1) {
-      news.updatedAt = new Date();
-      this.newsItems[index] = news;
-      this.saveDataToStorage();
-    }
+  updateNewsItem(news: NewsItem): Promise<void> {
+    return this.afs.collection('newsItems').doc(news.id).update({ 
+      ...news, 
+      updatedAt: new Date() 
+    });
   }
 
   // Gallery Items
-  getGalleryItems(): GalleryItem[] {
-    return this.galleryItems.filter(item => item.isActive).sort((a, b) => a.order - b.order);
+  getGalleryItems$(): Observable<GalleryItem[]> {
+    return this.afs
+      .collection<GalleryItem>('galleryItems', ref => 
+        ref.where('isActive', '==', true).orderBy('order')
+      )
+      .valueChanges({ idField: 'id' });
   }
 
-  addGalleryItem(item: GalleryItem): void {
-    item.id = this.generateId();
-    item.createdAt = new Date();
-    item.updatedAt = new Date();
-    this.galleryItems.push(item);
-    this.saveDataToStorage();
+  addGalleryItem(item: GalleryItem): Promise<void> {
+    const id = this.afs.createId();
+    const now = new Date();
+    return this.afs.collection('galleryItems').doc(id).set({ 
+      ...item, 
+      id, 
+      createdAt: now, 
+      updatedAt: now 
+    });
   }
 
-  updateGalleryItem(item: GalleryItem): void {
-    const index = this.galleryItems.findIndex(g => g.id === item.id);
-    if (index !== -1) {
-      item.updatedAt = new Date();
-      this.galleryItems[index] = item;
-      this.saveDataToStorage();
-    }
+  updateGalleryItem(item: GalleryItem): Promise<void> {
+    return this.afs.collection('galleryItems').doc(item.id).update({ 
+      ...item, 
+      updatedAt: new Date() 
+    });
   }
 
   // Pricing Plans
-  getPricingPlans(): PricingPlan[] {
-    return this.pricingPlans.filter(plan => plan.isActive).sort((a, b) => a.order - b.order);
+  getPricingPlans$(): Observable<PricingPlan[]> {
+    return this.afs
+      .collection<PricingPlan>('pricingPlans', ref => 
+        ref.where('isActive', '==', true).orderBy('order')
+      )
+      .valueChanges({ idField: 'id' });
   }
 
-  addPricingPlan(plan: PricingPlan): void {
-    plan.id = this.generateId();
-    plan.createdAt = new Date();
-    plan.updatedAt = new Date();
-    this.pricingPlans.push(plan);
-    this.saveDataToStorage();
+  addPricingPlan(plan: PricingPlan): Promise<void> {
+    const id = this.afs.createId();
+    const now = new Date();
+    return this.afs.collection('pricingPlans').doc(id).set({ 
+      ...plan, 
+      id, 
+      createdAt: now, 
+      updatedAt: now 
+    });
   }
 
-  updatePricingPlan(plan: PricingPlan): void {
-    const index = this.pricingPlans.findIndex(p => p.id === plan.id);
-    if (index !== -1) {
-      plan.updatedAt = new Date();
-      this.pricingPlans[index] = plan;
-      this.saveDataToStorage();
-    }
+  updatePricingPlan(plan: PricingPlan): Promise<void> {
+    return this.afs.collection('pricingPlans').doc(plan.id).update({ 
+      ...plan, 
+      updatedAt: new Date() 
+    });
   }
 
   // Contact Info
-  getContactInfo(): ContactInfo[] {
-    return this.contactInfo.filter(info => info.isActive).sort((a, b) => a.order - b.order);
+  getContactInfo$(): Observable<ContactInfo[]> {
+    return this.afs
+      .collection<ContactInfo>('contactInfo', ref => 
+        ref.where('isActive', '==', true).orderBy('order')
+      )
+      .valueChanges({ idField: 'id' });
   }
 
-  addContactInfo(info: ContactInfo): void {
-    info.id = this.generateId();
-    info.createdAt = new Date();
-    info.updatedAt = new Date();
-    this.contactInfo.push(info);
-    this.saveDataToStorage();
+  addContactInfo(info: ContactInfo): Promise<void> {
+    const id = this.afs.createId();
+    const now = new Date();
+    return this.afs.collection('contactInfo').doc(id).set({ 
+      ...info, 
+      id, 
+      createdAt: now, 
+      updatedAt: now 
+    });
   }
 
-  updateContactInfo(info: ContactInfo): void {
-    const index = this.contactInfo.findIndex(c => c.id === info.id);
-    if (index !== -1) {
-      info.updatedAt = new Date();
-      this.contactInfo[index] = info;
-      this.saveDataToStorage();
-    }
+  updateContactInfo(info: ContactInfo): Promise<void> {
+    return this.afs.collection('contactInfo').doc(info.id).update({ 
+      ...info, 
+      updatedAt: new Date() 
+    });
   }
 
   // Footer Content
-  getFooterContent(): FooterContent[] {
-    return this.footerContent.filter(content => content.isActive).sort((a, b) => a.order - b.order);
+  getFooterContent$(): Observable<FooterContent[]> {
+    return this.afs
+      .collection<FooterContent>('footerContent', ref => 
+        ref.where('isActive', '==', true).orderBy('order')
+      )
+      .valueChanges({ idField: 'id' });
   }
 
-  addFooterContent(content: FooterContent): void {
-    content.id = this.generateId();
-    content.createdAt = new Date();
-    content.updatedAt = new Date();
-    this.footerContent.push(content);
-    this.saveDataToStorage();
+  addFooterContent(content: FooterContent): Promise<void> {
+    const id = this.afs.createId();
+    const now = new Date();
+    return this.afs.collection('footerContent').doc(id).set({ 
+      ...content, 
+      id, 
+      createdAt: now, 
+      updatedAt: now 
+    });
   }
 
-  updateFooterContent(content: FooterContent): void {
-    const index = this.footerContent.findIndex(f => f.id === content.id);
-    if (index !== -1) {
-      content.updatedAt = new Date();
-      this.footerContent[index] = content;
-      this.saveDataToStorage();
-    }
+  updateFooterContent(content: FooterContent): Promise<void> {
+    return this.afs.collection('footerContent').doc(content.id).update({ 
+      ...content, 
+      updatedAt: new Date() 
+    });
   }
 
-  // Utility methods
-  private generateId(): string {
-    return Date.now().toString(36) + Math.random().toString(36).substr(2);
+  // Offers
+  getActiveOffers$(): Observable<Offer[]> {
+    return this.afs
+      .collection<Offer>('offers', ref => ref.where('isActive', '==', true))
+      .valueChanges({ idField: 'id' });
   }
 
-  private loadDataFromStorage(): void {
-    const doctorsData = localStorage.getItem('doctors');
-    const scansData = localStorage.getItem('scans');
-    const contactsData = localStorage.getItem('contacts');
-    const enquiriesData = localStorage.getItem('enquiries');
-    const featuresData = localStorage.getItem('features');
-    const heroContentData = localStorage.getItem('heroContent');
-    const testimonialsData = localStorage.getItem('testimonials');
-    const statisticsData = localStorage.getItem('statistics');
-    const navigationData = localStorage.getItem('navigationItems');
-    const siteSettingsData = localStorage.getItem('siteSettings');
-    const pageContentData = localStorage.getItem('pageContent');
-    const faqsData = localStorage.getItem('faqs');
-    const newsData = localStorage.getItem('newsItems');
-    const galleryData = localStorage.getItem('galleryItems');
-    const pricingData = localStorage.getItem('pricingPlans');
-    const contactInfoData = localStorage.getItem('contactInfo');
-    const footerData = localStorage.getItem('footerContent');
-
-    if (doctorsData) {
-      this.doctors = JSON.parse(doctorsData);
-    }
-    if (scansData) {
-      this.scans = JSON.parse(scansData);
-    }
-    if (contactsData) {
-      this.contacts = JSON.parse(contactsData);
-    }
-    if (enquiriesData) {
-      this.enquiries = JSON.parse(enquiriesData);
-    }
-    if (featuresData) {
-      this.features = JSON.parse(featuresData);
-    }
-    if (heroContentData) {
-      this.heroContent = JSON.parse(heroContentData);
-    }
-    if (testimonialsData) {
-      this.testimonials = JSON.parse(testimonialsData);
-    }
-    if (statisticsData) {
-      this.statistics = JSON.parse(statisticsData);
-    }
-    if (navigationData) {
-      this.navigationItems = JSON.parse(navigationData);
-    }
-    if (siteSettingsData) {
-      this.siteSettings = JSON.parse(siteSettingsData);
-    }
-    if (pageContentData) {
-      this.pageContent = JSON.parse(pageContentData);
-    }
-    if (faqsData) {
-      this.faqs = JSON.parse(faqsData);
-    }
-    if (newsData) {
-      this.newsItems = JSON.parse(newsData);
-    }
-    if (galleryData) {
-      this.galleryItems = JSON.parse(galleryData);
-    }
-    if (pricingData) {
-      this.pricingPlans = JSON.parse(pricingData);
-    }
-    if (contactInfoData) {
-      this.contactInfo = JSON.parse(contactInfoData);
-    }
-    if (footerData) {
-      this.footerContent = JSON.parse(footerData);
-    }
+  getAllOffers$(): Observable<Offer[]> {
+    return this.afs.collection<Offer>('offers').valueChanges({ idField: 'id' });
   }
 
-  private saveDataToStorage(): void {
-    localStorage.setItem('doctors', JSON.stringify(this.doctors));
-    localStorage.setItem('scans', JSON.stringify(this.scans));
-    localStorage.setItem('contacts', JSON.stringify(this.contacts));
-    localStorage.setItem('enquiries', JSON.stringify(this.enquiries));
-    localStorage.setItem('features', JSON.stringify(this.features));
-    localStorage.setItem('heroContent', JSON.stringify(this.heroContent));
-    localStorage.setItem('testimonials', JSON.stringify(this.testimonials));
-    localStorage.setItem('statistics', JSON.stringify(this.statistics));
-    localStorage.setItem('navigationItems', JSON.stringify(this.navigationItems));
-    localStorage.setItem('siteSettings', JSON.stringify(this.siteSettings));
-    localStorage.setItem('pageContent', JSON.stringify(this.pageContent));
-    localStorage.setItem('faqs', JSON.stringify(this.faqs));
-    localStorage.setItem('newsItems', JSON.stringify(this.newsItems));
-    localStorage.setItem('galleryItems', JSON.stringify(this.galleryItems));
-    localStorage.setItem('pricingPlans', JSON.stringify(this.pricingPlans));
-    localStorage.setItem('contactInfo', JSON.stringify(this.contactInfo));
-    localStorage.setItem('footerContent', JSON.stringify(this.footerContent));
+  getFeaturedOffers$(): Observable<Offer[]> {
+    return this.afs
+      .collection<Offer>('offers', ref => 
+        ref.where('isActive', '==', true).where('isFeatured', '==', true)
+      )
+      .valueChanges({ idField: 'id' });
   }
 
-  private initializeDefaultData(): void {
-    if (this.doctors.length === 0) {
-      this.initializeDefaultDoctors();
-    }
-    if (this.scanTypes.length === 0) {
-      this.initializeScanTypes();
-    }
-    if (this.features.length === 0) {
-      this.initializeDefaultFeatures();
-    }
-    if (this.heroContent.length === 0) {
-      this.initializeDefaultHeroContent();
-    }
-    if (this.testimonials.length === 0) {
-      this.initializeDefaultTestimonials();
-    }
-    if (this.statistics.length === 0) {
-      this.initializeDefaultStatistics();
-    }
-    if (this.navigationItems.length === 0) {
-      this.initializeDefaultNavigation();
-    }
-    if (this.siteSettings.length === 0) {
-      this.initializeDefaultSiteSettings();
-    }
-    if (this.pageContent.length === 0) {
-      this.initializeDefaultPageContent();
-    }
-    if (this.faqs.length === 0) {
-      this.initializeDefaultFAQs();
-    }
-    if (this.newsItems.length === 0) {
-      this.initializeDefaultNews();
-    }
-    if (this.galleryItems.length === 0) {
-      this.initializeDefaultGallery();
-    }
-    if (this.pricingPlans.length === 0) {
-      this.initializeDefaultPricing();
-    }
-    if (this.contactInfo.length === 0) {
-      this.initializeDefaultContactInfo();
-    }
-    if (this.footerContent.length === 0) {
-      this.initializeDefaultFooter();
-    }
+  getOffersByCategory$(category: string): Observable<Offer[]> {
+    return this.afs
+      .collection<Offer>('offers', ref => 
+        ref.where('isActive', '==', true).where('category', '==', category)
+      )
+      .valueChanges({ idField: 'id' });
   }
 
-  private initializeDefaultDoctors(): void {
+  addOffer(offer: Offer): Promise<void> {
+    const id = this.afs.createId();
+    const now = new Date();
+    return this.afs.collection('offers').doc(id).set({ 
+      ...offer, 
+      id, 
+      createdAt: now, 
+      updatedAt: now 
+    });
+  }
+
+  updateOffer(offer: Offer): Promise<void> {
+    return this.afs.collection('offers').doc(offer.id).update({ 
+      ...offer, 
+      updatedAt: new Date() 
+    });
+  }
+
+  deleteOffer(id: string): Promise<void> {
+    return this.afs.collection('offers').doc(id).delete();
+  }
+
+  // Offer Bookings
+  getOfferBookings$(): Observable<OfferBooking[]> {
+    return this.afs.collection<OfferBooking>('offerBookings').valueChanges({ idField: 'id' });
+  }
+
+  addOfferBooking(booking: OfferBooking): Promise<void> {
+    const id = this.afs.createId();
+    const now = new Date();
+    return this.afs.collection('offerBookings').doc(id).set({ 
+      ...booking, 
+      id, 
+      createdAt: now, 
+      updatedAt: now 
+    });
+  }
+
+  updateOfferBooking(booking: OfferBooking): Promise<void> {
+    return this.afs.collection('offerBookings').doc(booking.id).update({ 
+      ...booking, 
+      updatedAt: new Date() 
+    });
+  }
+
+  deleteOfferBooking(id: string): Promise<void> {
+    return this.afs.collection('offerBookings').doc(id).delete();
+  }
+
+// Initialize default data
+  private async initializeDefaultData(): Promise<void> {
+    const collections: any = [
+      { name: 'doctors', check: () => this.getAllDoctors$(), init: () => this.initializeDefaultDoctors() },
+      { name: 'scanTypes', check: () => this.getScanTypes$(), init: () => this.initializeScanTypes() },
+      { name: 'features', check: () => this.getFeatures$(), init: () => this.initializeDefaultFeatures() },
+      { name: 'heroContent', check: () => this.getHeroContent$(), init: () => this.initializeDefaultHeroContent() },
+      { name: 'testimonials', check: () => this.getTestimonials$(), init: () => this.initializeDefaultTestimonials() },
+      { name: 'statistics', check: () => this.getStatistics$(), init: () => this.initializeDefaultStatistics() },
+      { name: 'navigationItems', check: () => this.getNavigationItems$(), init: () => this.initializeDefaultNavigation() },
+      { name: 'siteSettings', check: () => this.getSiteSettings$(), init: () => this.initializeDefaultSiteSettings() },
+      { name: 'pageContent', check: () => this.getPageContent$('about'), init: () => this.initializeDefaultPageContent() },
+      { name: 'faqs', check: () => this.getFAQs$(), init: () => this.initializeDefaultFAQs() },
+      { name: 'newsItems', check: () => this.getNewsItems$(), init: () => this.initializeDefaultNews() },
+      { name: 'galleryItems', check: () => this.getGalleryItems$(), init: () => this.initializeDefaultGallery() },
+      { name: 'pricingPlans', check: () => this.getPricingPlans$(), init: () => this.initializeDefaultPricing() },
+      { name: 'contactInfo', check: () => this.getContactInfo$(), init: () => this.initializeDefaultContactInfo() },
+      { name: 'footerContent', check: () => this.getFooterContent$(), init: () => this.initializeDefaultFooter() }
+    ];
+
+    await Promise.all(collections.map(async (collection:any) => {
+      const data = await (collection.check().pipe(
+        map((items:any) => {
+          if (Array.isArray(items)) {
+            return items.length;
+          }
+          return items ? 1 : 0;
+        }) 
+      ));
+
+      if (data === 0) {
+        await collection.init();
+      }
+    }));
+  }
+
+
+  private async initializeDefaultDoctors(): Promise<void> {
     const defaultDoctors: Doctor[] = [
       {
-        id: '1',
+        id: this.afs.createId(),
         name: 'Dr. Sarah Johnson',
         specialization: 'Radiology',
         experience: 15,
@@ -637,7 +671,7 @@ export class DataService {
         updatedAt: new Date()
       },
       {
-        id: '2',
+        id: this.afs.createId(),
         name: 'Dr. Michael Chen',
         specialization: 'Cardiology',
         experience: 12,
@@ -659,7 +693,7 @@ export class DataService {
         updatedAt: new Date()
       },
       {
-        id: '3',
+        id: this.afs.createId(),
         name: 'Dr. Emily Rodriguez',
         specialization: 'Neurology',
         experience: 10,
@@ -682,14 +716,18 @@ export class DataService {
       }
     ];
 
-    this.doctors = defaultDoctors;
-    this.saveDataToStorage();
+    const batch = this.afs.firestore.batch();
+    defaultDoctors.forEach(doctor => {
+      const docRef = this.afs.collection('doctors').doc(doctor.id).ref;
+      batch.set(docRef, doctor);
+    });
+    await batch.commit();
   }
 
-  private initializeScanTypes(): void {
-    this.scanTypes = [
+  private async initializeScanTypes(): Promise<void> {
+    const defaultScanTypes: ScanType[] = [
       {
-        id: '1',
+        id: this.afs.createId(),
         name: 'MRI Scan',
         description: 'Magnetic Resonance Imaging for detailed body imaging',
         price: 800,
@@ -698,7 +736,7 @@ export class DataService {
         isActive: true
       },
       {
-        id: '2',
+        id: this.afs.createId(),
         name: 'CT Scan',
         description: 'Computed Tomography for cross-sectional imaging',
         price: 500,
@@ -707,7 +745,7 @@ export class DataService {
         isActive: true
       },
       {
-        id: '3',
+        id: this.afs.createId(),
         name: 'Ultrasound',
         description: 'Sound wave imaging for various body parts',
         price: 200,
@@ -716,7 +754,7 @@ export class DataService {
         isActive: true
       },
       {
-        id: '4',
+        id: this.afs.createId(),
         name: 'X-Ray',
         description: 'Radiographic imaging for bones and chest',
         price: 100,
@@ -725,12 +763,19 @@ export class DataService {
         isActive: true
       }
     ];
+
+    const batch = this.afs.firestore.batch();
+    defaultScanTypes.forEach(type => {
+      const docRef = this.afs.collection('scanTypes').doc(type.id).ref;
+      batch.set(docRef, type);
+    });
+    await batch.commit();
   }
 
-  private initializeDefaultFeatures(): void {
+  private async initializeDefaultFeatures(): Promise<void> {
     const defaultFeatures: Feature[] = [
       {
-        id: '1',
+        id: this.afs.createId(),
         title: 'Advanced Technology',
         description: 'Latest MRI, CT, and ultrasound equipment for accurate diagnostics',
         icon: 'precision_manufacturing',
@@ -740,7 +785,7 @@ export class DataService {
         updatedAt: new Date()
       },
       {
-        id: '2',
+        id: this.afs.createId(),
         title: 'Quick Results',
         description: 'Fast turnaround times with same-day results for urgent cases',
         icon: 'schedule',
@@ -750,7 +795,7 @@ export class DataService {
         updatedAt: new Date()
       },
       {
-        id: '3',
+        id: this.afs.createId(),
         title: 'Expert Doctors',
         description: 'Board-certified radiologists and specialists with years of experience',
         icon: 'verified_user',
@@ -760,7 +805,7 @@ export class DataService {
         updatedAt: new Date()
       },
       {
-        id: '4',
+        id: this.afs.createId(),
         title: '24/7 Support',
         description: 'Round-the-clock customer support and emergency services',
         icon: 'support_agent',
@@ -771,13 +816,17 @@ export class DataService {
       }
     ];
 
-    this.features = defaultFeatures;
-    this.saveDataToStorage();
+    const batch = this.afs.firestore.batch();
+    defaultFeatures.forEach(feature => {
+      const docRef = this.afs.collection('features').doc(feature.id).ref;
+      batch.set(docRef, feature);
+    });
+    await batch.commit();
   }
 
-  private initializeDefaultHeroContent(): void {
+  private async initializeDefaultHeroContent(): Promise<void> {
     const defaultHero: HeroContent = {
-      id: '1',
+      id: this.afs.createId(),
       title: 'Advanced Medical Scanning Services',
       subtitle: 'State-of-the-art diagnostic imaging',
       description: 'State-of-the-art diagnostic imaging with expert medical professionals. Get accurate results with cutting-edge technology and experienced radiologists.',
@@ -790,14 +839,13 @@ export class DataService {
       updatedAt: new Date()
     };
 
-    this.heroContent = [defaultHero];
-    this.saveDataToStorage();
+    await this.afs.collection('heroContent').doc(defaultHero.id).set(defaultHero);
   }
 
-  private initializeDefaultTestimonials(): void {
+  private async initializeDefaultTestimonials(): Promise<void> {
     const defaultTestimonials: Testimonial[] = [
       {
-        id: '1',
+        id: this.afs.createId(),
         patientName: 'John Smith',
         patientAge: 45,
         treatment: 'MRI Scan',
@@ -809,7 +857,7 @@ export class DataService {
         updatedAt: new Date()
       },
       {
-        id: '2',
+        id: this.afs.createId(),
         patientName: 'Sarah Wilson',
         patientAge: 32,
         treatment: 'CT Scan',
@@ -821,7 +869,7 @@ export class DataService {
         updatedAt: new Date()
       },
       {
-        id: '3',
+        id: this.afs.createId(),
         patientName: 'Mike Davis',
         patientAge: 58,
         treatment: 'Ultrasound',
@@ -834,14 +882,18 @@ export class DataService {
       }
     ];
 
-    this.testimonials = defaultTestimonials;
-    this.saveDataToStorage();
+    const batch = this.afs.firestore.batch();
+    defaultTestimonials.forEach(testimonial => {
+      const docRef = this.afs.collection('testimonials').doc(testimonial.id).ref;
+      batch.set(docRef, testimonial);
+    });
+    await batch.commit();
   }
 
-  private initializeDefaultStatistics(): void {
+  private async initializeDefaultStatistics(): Promise<void> {
     const defaultStatistics: Statistic[] = [
       {
-        id: '1',
+        id: this.afs.createId(),
         title: 'Years of Experience',
         value: '15+',
         icon: 'schedule',
@@ -851,7 +903,7 @@ export class DataService {
         updatedAt: new Date()
       },
       {
-        id: '2',
+        id: this.afs.createId(),
         title: 'Happy Patients',
         value: '10,000+',
         icon: 'people',
@@ -861,7 +913,7 @@ export class DataService {
         updatedAt: new Date()
       },
       {
-        id: '3',
+        id: this.afs.createId(),
         title: 'Expert Doctors',
         value: '25+',
         icon: 'medical_services',
@@ -871,7 +923,7 @@ export class DataService {
         updatedAt: new Date()
       },
       {
-        id: '4',
+        id: this.afs.createId(),
         title: 'Success Rate',
         value: '99%',
         icon: 'trending_up',
@@ -882,14 +934,18 @@ export class DataService {
       }
     ];
 
-    this.statistics = defaultStatistics;
-    this.saveDataToStorage();
+    const batch = this.afs.firestore.batch();
+    defaultStatistics.forEach(statistic => {
+      const docRef = this.afs.collection('statistics').doc(statistic.id).ref;
+      batch.set(docRef, statistic);
+    });
+    await batch.commit();
   }
 
-  private initializeDefaultNavigation(): void {
+  private async initializeDefaultNavigation(): Promise<void> {
     const defaultNavigation: NavigationItem[] = [
       {
-        id: '1',
+        id: this.afs.createId(),
         label: 'Home',
         icon: 'home',
         route: '/',
@@ -900,7 +956,7 @@ export class DataService {
         updatedAt: new Date()
       },
       {
-        id: '2',
+        id: this.afs.createId(),
         label: 'Doctors',
         icon: 'people',
         route: '/doctors',
@@ -911,7 +967,7 @@ export class DataService {
         updatedAt: new Date()
       },
       {
-        id: '3',
+        id: this.afs.createId(),
         label: 'Offers',
         icon: 'local_offer',
         route: '/offers',
@@ -922,7 +978,7 @@ export class DataService {
         updatedAt: new Date()
       },
       {
-        id: '4',
+        id: this.afs.createId(),
         label: 'Contact',
         icon: 'contact_mail',
         route: '/contact',
@@ -933,7 +989,7 @@ export class DataService {
         updatedAt: new Date()
       },
       {
-        id: '5',
+        id: this.afs.createId(),
         label: 'Enquiry',
         icon: 'help',
         route: '/enquiry',
@@ -944,7 +1000,7 @@ export class DataService {
         updatedAt: new Date()
       },
       {
-        id: '6',
+        id: this.afs.createId(),
         label: 'Admin',
         icon: 'admin_panel_settings',
         route: '/admin',
@@ -956,13 +1012,17 @@ export class DataService {
       }
     ];
 
-    this.navigationItems = defaultNavigation;
-    this.saveDataToStorage();
+    const batch = this.afs.firestore.batch();
+    defaultNavigation.forEach(item => {
+      const docRef = this.afs.collection('navigationItems').doc(item.id).ref;
+      batch.set(docRef, item);
+    });
+    await batch.commit();
   }
 
-  private initializeDefaultSiteSettings(): void {
+  private async initializeDefaultSiteSettings(): Promise<void> {
     const defaultSettings: SiteSettings = {
-      id: '1',
+      id: this.afs.createId(),
       siteName: 'LabScan Pro',
       siteDescription: 'Advanced Medical Scanning Services',
       logo: 'local_hospital',
@@ -983,14 +1043,13 @@ export class DataService {
       updatedAt: new Date()
     };
 
-    this.siteSettings = [defaultSettings];
-    this.saveDataToStorage();
+    await this.afs.collection('siteSettings').doc(defaultSettings.id).set(defaultSettings);
   }
 
-  private initializeDefaultPageContent(): void {
+  private async initializeDefaultPageContent(): Promise<void> {
     const defaultPages: PageContent[] = [
       {
-        id: '1',
+        id: this.afs.createId(),
         pageName: 'about',
         title: 'About LabScan Pro',
         content: 'We are a leading medical scanning facility providing state-of-the-art diagnostic imaging services.',
@@ -1001,7 +1060,7 @@ export class DataService {
         updatedAt: new Date()
       },
       {
-        id: '2',
+        id: this.afs.createId(),
         pageName: 'services',
         title: 'Our Services',
         content: 'We offer comprehensive medical scanning services including MRI, CT, Ultrasound, and X-Ray.',
@@ -1013,14 +1072,18 @@ export class DataService {
       }
     ];
 
-    this.pageContent = defaultPages;
-    this.saveDataToStorage();
+    const batch = this.afs.firestore.batch();
+    defaultPages.forEach(page => {
+      const docRef = this.afs.collection('pageContent').doc(page.id).ref;
+      batch.set(docRef, page);
+    });
+    await batch.commit();
   }
 
-  private initializeDefaultFAQs(): void {
+  private async initializeDefaultFAQs(): Promise<void> {
     const defaultFAQs: FAQ[] = [
       {
-        id: '1',
+        id: this.afs.createId(),
         question: 'How do I book an appointment?',
         answer: 'You can book an appointment by calling us or using our online enquiry form.',
         category: 'general',
@@ -1030,7 +1093,7 @@ export class DataService {
         updatedAt: new Date()
       },
       {
-        id: '2',
+        id: this.afs.createId(),
         question: 'What should I bring to my appointment?',
         answer: 'Please bring your ID, insurance card, and any previous medical records.',
         category: 'appointment',
@@ -1040,7 +1103,7 @@ export class DataService {
         updatedAt: new Date()
       },
       {
-        id: '3',
+        id: this.afs.createId(),
         question: 'How long do results take?',
         answer: 'Most results are available within 24-48 hours.',
         category: 'results',
@@ -1051,14 +1114,18 @@ export class DataService {
       }
     ];
 
-    this.faqs = defaultFAQs;
-    this.saveDataToStorage();
+    const batch = this.afs.firestore.batch();
+    defaultFAQs.forEach(faq => {
+      const docRef = this.afs.collection('faqs').doc(faq.id).ref;
+      batch.set(docRef, faq);
+    });
+    await batch.commit();
   }
 
-  private initializeDefaultNews(): void {
+  private async initializeDefaultNews(): Promise<void> {
     const defaultNews: NewsItem[] = [
       {
-        id: '1',
+        id: this.afs.createId(),
         title: 'New MRI Machine Installation',
         content: 'We have installed the latest 3T MRI machine for enhanced imaging capabilities.',
         summary: 'Latest MRI technology now available',
@@ -1071,12 +1138,12 @@ export class DataService {
         updatedAt: new Date()
       },
       {
-        id: '2',
+        id: this.afs.createId(),
         title: 'Extended Hours for Emergency Cases',
         content: 'We now offer extended hours for emergency medical scanning cases.',
         summary: '24/7 emergency scanning services',
         imageUrl: 'https://via.placeholder.com/400x300?text=Emergency+Services',
-        publishDate: new Date(Date.now() - 86400000), // 1 day ago
+        publishDate: new Date(Date.now() - 86400000),
         isPublished: true,
         isFeatured: false,
         tags: ['emergency', 'hours', 'services'],
@@ -1085,14 +1152,18 @@ export class DataService {
       }
     ];
 
-    this.newsItems = defaultNews;
-    this.saveDataToStorage();
+    const batch = this.afs.firestore.batch();
+    defaultNews.forEach(news => {
+      const docRef = this.afs.collection('newsItems').doc(news.id).ref;
+      batch.set(docRef, news);
+    });
+    await batch.commit();
   }
 
-  private initializeDefaultGallery(): void {
+  private async initializeDefaultGallery(): Promise<void> {
     const defaultGallery: GalleryItem[] = [
       {
-        id: '1',
+        id: this.afs.createId(),
         title: 'MRI Scanning Room',
         description: 'State-of-the-art MRI scanning facility',
         imageUrl: 'https://via.placeholder.com/400x300?text=MRI+Room',
@@ -1103,7 +1174,7 @@ export class DataService {
         updatedAt: new Date()
       },
       {
-        id: '2',
+        id: this.afs.createId(),
         title: 'CT Scanning Equipment',
         description: 'Latest CT scanning technology',
         imageUrl: 'https://via.placeholder.com/400x300?text=CT+Scanner',
@@ -1115,14 +1186,18 @@ export class DataService {
       }
     ];
 
-    this.galleryItems = defaultGallery;
-    this.saveDataToStorage();
+    const batch = this.afs.firestore.batch();
+    defaultGallery.forEach(item => {
+      const docRef = this.afs.collection('galleryItems').doc(item.id).ref;
+      batch.set(docRef, item);
+    });
+    await batch.commit();
   }
 
-  private initializeDefaultPricing(): void {
+  private async initializeDefaultPricing(): Promise<void> {
     const defaultPricing: PricingPlan[] = [
       {
-        id: '1',
+        id: this.afs.createId(),
         name: 'Basic Package',
         description: 'Essential scanning services',
         price: 299,
@@ -1135,7 +1210,7 @@ export class DataService {
         updatedAt: new Date()
       },
       {
-        id: '2',
+        id: this.afs.createId(),
         name: 'Premium Package',
         description: 'Comprehensive scanning services',
         price: 599,
@@ -1149,14 +1224,18 @@ export class DataService {
       }
     ];
 
-    this.pricingPlans = defaultPricing;
-    this.saveDataToStorage();
+    const batch = this.afs.firestore.batch();
+    defaultPricing.forEach(plan => {
+      const docRef = this.afs.collection('pricingPlans').doc(plan.id).ref;
+      batch.set(docRef, plan);
+    });
+    await batch.commit();
   }
 
-  private initializeDefaultContactInfo(): void {
+  private async initializeDefaultContactInfo(): Promise<void> {
     const defaultContactInfo: ContactInfo[] = [
       {
-        id: '1',
+        id: this.afs.createId(),
         type: 'phone',
         title: 'Phone',
         value: '+1 (555) 123-4567',
@@ -1167,7 +1246,7 @@ export class DataService {
         updatedAt: new Date()
       },
       {
-        id: '2',
+        id: this.afs.createId(),
         type: 'email',
         title: 'Email',
         value: 'info@labscan.com',
@@ -1178,7 +1257,7 @@ export class DataService {
         updatedAt: new Date()
       },
       {
-        id: '3',
+        id: this.afs.createId(),
         type: 'address',
         title: 'Address',
         value: '123 Medical Center Dr, New York, NY 10001',
@@ -1189,7 +1268,7 @@ export class DataService {
         updatedAt: new Date()
       },
       {
-        id: '4',
+        id: this.afs.createId(),
         type: 'hours',
         title: 'Business Hours',
         value: 'Mon-Fri: 8AM-6PM, Sat: 9AM-4PM',
@@ -1201,14 +1280,18 @@ export class DataService {
       }
     ];
 
-    this.contactInfo = defaultContactInfo;
-    this.saveDataToStorage();
+    const batch = this.afs.firestore.batch();
+    defaultContactInfo.forEach(info => {
+      const docRef = this.afs.collection('contactInfo').doc(info.id).ref;
+      batch.set(docRef, info);
+    });
+    await batch.commit();
   }
 
-  private initializeDefaultFooter(): void {
+  private async initializeDefaultFooter(): Promise<void> {
     const defaultFooter: FooterContent[] = [
       {
-        id: '1',
+        id: this.afs.createId(),
         section: 'about',
         title: 'About LabScan Pro',
         content: 'Leading medical scanning facility providing state-of-the-art diagnostic imaging services.',
@@ -1223,7 +1306,7 @@ export class DataService {
         updatedAt: new Date()
       },
       {
-        id: '2',
+        id: this.afs.createId(),
         section: 'services',
         title: 'Services',
         content: 'Comprehensive medical scanning services.',
@@ -1239,7 +1322,7 @@ export class DataService {
         updatedAt: new Date()
       },
       {
-        id: '3',
+        id: this.afs.createId(),
         section: 'contact',
         title: 'Contact Info',
         content: 'Get in touch with us.',
@@ -1254,7 +1337,7 @@ export class DataService {
         updatedAt: new Date()
       },
       {
-        id: '4',
+        id: this.afs.createId(),
         section: 'legal',
         title: 'Legal',
         content: 'Legal information and policies.',
@@ -1270,7 +1353,11 @@ export class DataService {
       }
     ];
 
-    this.footerContent = defaultFooter;
-    this.saveDataToStorage();
+    const batch = this.afs.firestore.batch();
+    defaultFooter.forEach(content => {
+      const docRef = this.afs.collection('footerContent').doc(content.id).ref;
+      batch.set(docRef, content);
+    });
+    await batch.commit();
   }
 }
