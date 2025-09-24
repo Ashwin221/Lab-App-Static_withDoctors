@@ -129,7 +129,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
               <mat-icon>phone</mat-icon>
               <div>
                 <h4>Call Us</h4>
-                <p>+1 (555) 123-4567</p>
+                <p>+91 7898798788</p>
                 <span>Available 24/7 for emergencies</span>
               </div>
             </div>

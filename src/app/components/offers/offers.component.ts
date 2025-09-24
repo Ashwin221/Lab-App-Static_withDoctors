@@ -39,12 +39,12 @@ import { Component, OnInit } from '@angular/core';
               </ul>
               <div class="offer-validity">
                 <mat-icon>schedule</mat-icon>
-                <span>Valid until December 31, 2024</span>
+                <span>Valid until December 31, 2025</span>
               </div>
             </div>
             <button mat-raised-button color="primary" class="offer-button">
               <mat-icon>shopping_cart</mat-icon>
-              Book Now
+              Enquiry Now
             </button>
           </div>
 
@@ -67,12 +67,12 @@ import { Component, OnInit } from '@angular/core';
               </ul>
               <div class="offer-validity">
                 <mat-icon>schedule</mat-icon>
-                <span>Valid until November 30, 2024</span>
+                <span>Valid until November 30, 2025</span>
               </div>
             </div>
             <button mat-raised-button color="accent" class="offer-button">
               <mat-icon>family_restroom</mat-icon>
-              Book Family Package
+               Enquiry Family Package
             </button>
           </div>
 
@@ -95,12 +95,12 @@ import { Component, OnInit } from '@angular/core';
               </ul>
               <div class="offer-validity">
                 <mat-icon>schedule</mat-icon>
-                <span>Valid until December 15, 2024</span>
+                <span>Valid until December 15, 2025</span>
               </div>
             </div>
             <button mat-raised-button color="primary" class="offer-button">
               <mat-icon>elderly</mat-icon>
-              Book Senior Package
+               Enquiry Senior Package
             </button>
           </div>
         </div>
@@ -110,7 +110,7 @@ import { Component, OnInit } from '@angular/core';
     <!-- Seasonal Offers -->
     <section class="seasonal-offers">
       <div class="container">
-        <h2>Seasonal Specials</h2>
+        <h2>Packages</h2>
         <div class="seasonal-grid">
           <div class="seasonal-card">
             <div class="seasonal-image">
@@ -196,7 +196,7 @@ import { Component, OnInit } from '@angular/core';
               <mat-icon>phone</mat-icon>
               Call Now: +91 7898798788
             </button>
-            <button mat-stroked-button color="primary" size="large">
+            <button mat-stroked-button color="primary" size="large" routerLink="/enquiry">
               <mat-icon>email</mat-icon>
               Send Enquiry
             </button>

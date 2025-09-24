@@ -66,7 +66,7 @@ import { Component } from '@angular/core';
       </div>
       
       <div class="footer-bottom">
-        <p>&copy; 2024 LabScan Pro. All rights reserved.</p>
+        <p>&copy; 2025 LabScan Pro. All rights reserved.</p>
       </div>
     </footer>
   `,

@@ -130,7 +130,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
               <h3>Find Us</h3>
               <div class="map-container">
                 <iframe
-                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3022.9663095343008!2d-74.00425878459418!3d40.74844097932681!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x89c259a9b3117469%3A0xd134e199a405a163!2sEmpire%20State%20Building!5e0!3m2!1sen!2sus!4v1234567890123!5m2!1sen!2sus"
+                  src="https://www.google.com/maps/embed?pb=!1m16!1m12!1m3!1d31323.643454680354!2d76.99870648409427!3d11.079395103279046!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!2m1!1sSaravanampatti%20lab!5e0!3m2!1sen!2sin!4v1758653421338!5m2!1sen!2sin"
                   width="100%"
                   height="300"
                   style="border:0;"

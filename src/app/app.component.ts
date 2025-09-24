@@ -22,7 +22,7 @@ import { Component } from '@angular/core';
       
       <footer class="footer">
         <div class="container">
-          <p>&copy; 2024 LabScan Pro. All rights reserved.</p>
+          <p>&copy; 2025 LabScan Pro. All rights reserved.</p>
         </div>
       </footer>
     </div>

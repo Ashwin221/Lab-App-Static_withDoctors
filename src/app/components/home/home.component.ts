@@ -20,7 +20,7 @@ import { Feature, HeroContent, Testimonial, Statistic } from '../../models/featu
                   <mat-icon>people</mat-icon>
                   {{ heroContent.primaryButtonText }}
                 </button>
-                <button mat-stroked-button color="primary" [routerLink]="heroContent.secondaryButtonLink">
+                <button mat-stroked-button color="white" [routerLink]="heroContent.secondaryButtonLink">
                   <mat-icon>local_offer</mat-icon>
                   {{ heroContent.secondaryButtonText }}
                 </button>
